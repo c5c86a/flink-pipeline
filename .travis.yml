@@ -13,7 +13,7 @@ matrix:
 cache:
  directories:
    - $HOME/.m2
-   - target-flink
+   - flink-1.5.2
 
 before_install:
   - if [ ! -d "flink-1.5.2" ]; then curl -s http://mirrors.myaegean.gr/apache/flink/flink-1.5.2/flink-1.5.2-bin-scala_2.11.tgz | tar xzvf -; fi
