@@ -44,4 +44,4 @@ def main(factory):
         .time_window(milliseconds(50)) \
         .reduce(Sum()) \
         .output()
-    env.execute()
+    env.execute("example.py")
