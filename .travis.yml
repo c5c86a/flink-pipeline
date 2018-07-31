@@ -24,7 +24,9 @@ install:
 
 script:
   - ./target-flink/flink-1.5.2/bin/pyflink-stream.sh example.py
+  - cd target-flink/flink-1.5.2/log
   - grep -H "" target-flink/flink-1.5.2/log/flink-*-taskexecutor-*.out
+  - cd -
   # - python test.py
 
 after_script:
