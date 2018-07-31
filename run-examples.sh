@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -ex
+#!/usr/bin/env sh -ex
 
 declare -a path2py=(
     "word_count/word_count.py",
