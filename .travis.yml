@@ -17,15 +17,12 @@ cache:
 
 before_install:
   - if [ ! -d "flink-1.5.2" ]; then curl -s http://mirrors.myaegean.gr/apache/flink/flink-1.5.2/flink-1.5.2-bin-scala_2.11.tgz | tar xzvf -; fi
-  - if [ -n "$JYTHON" ]; then ./before_install_jython.sh; source $HOME/myvirtualenv/bin/activate ;fi
-  - if [ -n "$JYTHON" ]; then pip install jip==0.7; fi
-  - if [ -n "$JYTHON" ]; then export CLASSPATH=$VIRTUAL_ENV/javalib/*; fi
   # - pip install unittest2
 
 script:
   - ./flink-1.5.2/bin/start-cluster.sh
   - ./flink-1.5.2/bin/pyflink-stream.sh example.py
-  - cat flink-1.5.2/log/flink-*-taskexecutor-*.out
+  - grep -H "" flink-1.5.2/log/flink-*-taskexecutor-*.out
   # - python test.py
 
 after_script:
