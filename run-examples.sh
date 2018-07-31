@@ -1,21 +1,45 @@
-#!/usr/bin/env sh -ex
+#!/usr/bin/env sh
 
-declare -a path2py=(
-    "word_count/word_count.py",
-    "data_enrichment/data_enrichment.py",
-    "mandelbrot/mandelbrot_set.py",
-    "template_example/application.py",
-    "trending_hashtags/trending_hashtags.py",
-    "mean_values/mean_values.py")
+cd examples
+python runner.py word_count/word_count.py
+cd -
+cd target-flink/flink-1.5.2/log
+grep -H "" flink-*-taskexecutor-*.out
+cd -
 
-for i in "${arr[@]}"
-do
-   cd examples
-   python runner.py "$i"
-   cd -
-   cd target-flink/flink-1.5.2/log
-   grep -H "" flink-*-taskexecutor-*.out
-   cd -
-done
+cd examples
+python runner.py data_enrichment/data_enrichment.py
+cd -
+cd target-flink/flink-1.5.2/log
+grep -H "" flink-*-taskexecutor-*.out
+cd -
+
+cd examples
+python runner.py mandelbrot/mandelbrot_set.py
+cd -
+cd target-flink/flink-1.5.2/log
+grep -H "" flink-*-taskexecutor-*.out
+cd -
+
+cd examples
+python runner.py template_example/application.py
+cd -
+cd target-flink/flink-1.5.2/log
+grep -H "" flink-*-taskexecutor-*.out
+cd -
+
+cd examples
+python runner.py trending_hashtags/trending_hashtags.py
+cd -
+cd target-flink/flink-1.5.2/log
+grep -H "" flink-*-taskexecutor-*.out
+cd -
+
+cd examples
+python runner.py mean_values/mean_values.py
+cd -
+cd target-flink/flink-1.5.2/log
+grep -H "" flink-*-taskexecutor-*.out
+cd -
 
 
