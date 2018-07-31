@@ -15,12 +15,12 @@ cache:
    - $HOME/.m2
    - flink-1.5.2
 
-before_install:
-  - if [ ! -z "$(ls -A flink-1.5.2)" ]; then curl -s http://mirrors.myaegean.gr/apache/flink/flink-1.5.2/flink-1.5.2-bin-scala_2.11.tgz | tar xzvf -; fi
+install:
+  - if [ ! -z "$(ls -A flink-1.5.2)" ]; then echo 'downloading...' && travis_retry curl -s http://mirrors.myaegean.gr/apache/flink/flink-1.5.2/flink-1.5.2-bin-scala_2.11.tgz | tar xzf -; fi
+  - ./flink-1.5.2/bin/start-cluster.sh
   # - pip install unittest2
 
 script:
-  - ./flink-1.5.2/bin/start-cluster.sh
   - ./flink-1.5.2/bin/pyflink-stream.sh example.py
   - grep -H "" flink-1.5.2/log/flink-*-taskexecutor-*.out
   # - python test.py
