@@ -92,6 +92,13 @@ under the License.
 			<version>1.2.17</version>
 			<scope>runtime</scope>
 		</dependency>
+
+    <!-- https://ci.apache.org/projects/flink/flink-docs-release-1.5/dev/stream/testing.html#integration-testing --> 
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-test-utils_2.11</artifactId>
+      <version>1.5.0</version>
+    </dependency>
 	</dependencies>
 
 	<build>
