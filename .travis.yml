@@ -16,6 +16,7 @@ cache:
    - flink-1.5.2
 
 install:
+  - ls -lah flint-1.5.2
   - if [ ! -z "$(ls -A flink-1.5.2)" ]; then echo 'downloading...' && travis_retry curl -s http://mirrors.myaegean.gr/apache/flink/flink-1.5.2/flink-1.5.2-bin-scala_2.11.tgz | tar xzf -; fi
   - ./flink-1.5.2/bin/start-cluster.sh
   # - pip install unittest2
