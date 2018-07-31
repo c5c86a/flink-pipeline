@@ -27,7 +27,7 @@ script:
   - cd target-flink/flink-1.5.2/log
   - grep -H "" flink-*-taskexecutor-*.out
   - cd -
-  - sh run-examples.sh
+  - ./run-examples.sh
   # - python test.py
 
 after_script:
