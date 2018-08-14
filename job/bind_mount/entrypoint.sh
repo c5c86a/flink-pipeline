@@ -13,5 +13,5 @@ bash "$FLINK_HOME"/bin/flink run -c mygroupid.StreamingJob bind_mount/target/ori
 sleep 10
 
 #tail -F "$FLINK_HOME"/log/flink-*-taskexecutor-*.out 
-grep -H "" "$FLINK_HOME"/log/flink-*-taskexecutor-*.out 
+grep -H "" "$FLINK_HOME"/log/* 
  
