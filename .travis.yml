@@ -9,4 +9,4 @@ install:
   - sudo mv docker-compose /usr/local/bin
 
 script:
-  - docker-compose run job
+  - docker-compose run job test

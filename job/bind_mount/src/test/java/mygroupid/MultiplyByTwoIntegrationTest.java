@@ -22,6 +22,7 @@ public class MultiplyByTwoIntegrationTest extends AbstractTestBase {
         // values are collected in a static variable
         CollectSink.values.clear();
 
+			  // TODO: text = env.readTextFile(params.get("input"));
         // create a stream of custom elements and apply transformations
         env.fromElements(1L, 21L, 22L)
                 .map(new MultiplyByTwo())
