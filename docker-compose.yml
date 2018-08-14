@@ -1,0 +1,10 @@
+version: "2.1"
+services:
+  job:
+    build:
+      context:     job
+    volumes:
+      - ./job/bind_mount:/opt/flink/bind_mount
+    expose:
+      - "8081"
+

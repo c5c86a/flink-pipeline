@@ -38,10 +38,10 @@ class Sum(ReduceFunction):
 
 def main(factory):
     env = factory.get_execution_environment()
-    env.create_python_source(Generator(num_iters=1000)) \
+    env.create_python_source(Generator(num_iters=1)) \
         .flat_map(Tokenizer()) \
         .key_by(Selector()) \
         .time_window(milliseconds(50)) \
         .reduce(Sum()) \
         .output()
-    env.execute("example.py")
+    env.execute()

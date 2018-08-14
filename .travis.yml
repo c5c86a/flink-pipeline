@@ -1,33 +1,12 @@
-language: python
-
-python:
-  - '2.7'
-
-matrix:
-  include:
-    - python: 2.7
-      env: JYTHON=org.python:jython-installer:2.5.3
-      # env: JYTHON=org.python:jython-installer:2.5.3 FOO=foo
-
-
-cache:
- directories:
-   - $HOME/.m2
-   - target-flink
+env:
+  matrix:
+    - DOCKER_COMPOSE_VERSION='1.22.0'  
 
 install:
-  - cd target-flink
-  - if [ ! -d "flink-1.5.2" ]; then echo 'downloading...' && travis_retry curl -s http://mirrors.myaegean.gr/apache/flink/flink-1.5.2/flink-1.5.2-bin-scala_2.11.tgz | tar xzf -; fi
-  - cd -
-  - ./target-flink/flink-1.5.2/bin/start-cluster.sh
-  # - pip install unittest2
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 script:
-  - ./target-flink/flink-1.5.2/bin/pyflink-stream.sh example.py
-  - cd target-flink/flink-1.5.2/log
-  - grep -H "" flink-*-taskexecutor-*.out
-  - cd -
-  # - python test.py
-
-after_script:
-  - ./target-flink/flink-1.5.2/bin/stop-cluster.sh
+  - docker-compose run job

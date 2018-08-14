@@ -1,7 +1,5 @@
-target*
-flink-1.5.2
-dependency-reduced-pom.xml
-
+job/bind_mount/target
+job/bind_mount/dependency-reduced-pom.xml
 # Compiled class file
 *.class
 
