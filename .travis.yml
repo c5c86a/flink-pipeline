@@ -10,3 +10,4 @@ install:
 
 script:
   - docker-compose run job test
+  - docker-compose run job benchmark

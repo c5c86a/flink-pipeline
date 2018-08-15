@@ -23,8 +23,15 @@ public class StreamingJob {
 		// make parameters available in the web interface
 		env.getConfig().setGlobalJobParameters(params);
 		DataStream<String> text;
-    // TODO: read given kafka broker hostname and port in another branch
-    text = env.socketTextStream("producer", 9000, '\n');
+    if (params.has("input")) {
+      text = env.socketTextStream("producer", 9000, '\n');
+		} else {
+			// TODO: for loop
+			text = env.fromElements(new String[] {
+        "To be, or not to be,--that is the question:--",
+        "Whether 'tis nobler in the mind to suffer"
+      });
+    }
 	  /* http://flink.apache.org/docs/latest/apis/streaming/index.html */
     DataStream<Tuple2<String, Integer>> dataStream = text
       .flatMap(new Splitter())
