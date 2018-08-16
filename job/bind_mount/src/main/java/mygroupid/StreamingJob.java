@@ -26,11 +26,11 @@ public class StreamingJob {
     if (params.has("input")) {
       text = env.socketTextStream("producer", 9000, '\n');
 		} else {
-			// TODO: for loop
-			text = env.fromElements(new String[] {
-        "To be, or not to be,--that is the question:--",
-        "Whether 'tis nobler in the mind to suffer"
-      });
+      String[] elements = new String[100000];
+      for(int i=0; i < 100000; i++){
+        elements[i] = "To be, or not to be,--that is the question:--";
+      }
+			text = env.fromElements(elements);
     }
 	  /* http://flink.apache.org/docs/latest/apis/streaming/index.html */
     DataStream<Tuple2<String, Integer>> dataStream = text
