@@ -20,5 +20,5 @@ RUN apt-get update \
    && apt-get update \
    && apt-get install -y --allow-unauthenticated openjdk-8-jdk maven
 
-ENTRYPOINT ["bash", "bind_mount/entrypoint.sh"] 
+ENTRYPOINT ["./bind_mount/entrypoint.sh"] 
 
