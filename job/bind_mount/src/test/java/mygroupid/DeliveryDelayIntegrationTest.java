@@ -9,11 +9,12 @@ import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+import org.apache.flink.api.java.tuple.Tuple2;
 
-public class MultiplyByTwoIntegrationTest extends AbstractTestBase {
+public class DeliveryDelayIntegrationTest extends AbstractTestBase {
 
     @Test
-    public void testMultiply() throws Exception {
+    public void testparsing() throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // configure your test environment
@@ -24,25 +25,25 @@ public class MultiplyByTwoIntegrationTest extends AbstractTestBase {
 
 			  // TODO: text = env.readTextFile(params.get("input"));
         // create a stream of custom elements and apply transformations
-        env.fromElements(1L, 21L, 22L)
-                .map(new MultiplyByTwo())
+        env.fromElements("2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34")
+                .flatMap(new DeliveryDelay())
                 .addSink(new CollectSink());
 
         // execute
         env.execute();
 
         // verify your results
-        assertEquals(Lists.newArrayList(2L, 42L, 44L), CollectSink.values);
+        Tuple2<String, Integer> expected = new Tuple2<String, Integer>("2018-08-06 19:16:32 Europe/Zurich", 86402000);
+        assertEquals(Lists.newArrayList(expected), CollectSink.values);
     }
 
     // create a testing sink
-    private static class CollectSink implements SinkFunction<Long> {
-
+    private static class CollectSink implements SinkFunction<Tuple2<String, Integer>> {
         // must be static
-        public static final List<Long> values = new ArrayList<>();
+        public static final List<Tuple2<String, Integer>> values = new ArrayList<>();
 
         @Override
-        public synchronized void invoke(Long value) throws Exception {
+        public synchronized void invoke(Tuple2<String, Integer> value) throws Exception {
             values.add(value);
         }
     }
