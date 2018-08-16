@@ -13,6 +13,7 @@ else
   bash "$FLINK_HOME"/bin/flink run -c mygroupid.StreamingJob bind_mount/target/original-myartifactid-1.0-SNAPSHOT.jar --port 9000
   sleep 10
   grep -H "" "$FLINK_HOME"/log/* 
+  tail -F a
 fi
 
 

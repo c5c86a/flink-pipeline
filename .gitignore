@@ -1,6 +1,7 @@
 job/bind_mount/target
 job/bind_mount/m2
 job/bind_mount/dependency-reduced-pom.xml
+job/bind_mount/output.csv
 # Compiled class file
 *.class
 
