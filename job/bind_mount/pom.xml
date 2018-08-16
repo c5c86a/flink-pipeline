@@ -164,7 +164,6 @@ under the License.
 			<plugins>
 
 				<!-- If you want to use Java 8 Lambda Expressions uncomment the following lines -->
-				<!--
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
@@ -180,7 +179,6 @@ under the License.
 						</dependency>
 					</dependencies>
 				</plugin>
-				-->
 
 				<!-- This improves the out-of-the-box experience in Eclipse by resolving some warnings. -->
 				<plugin>
