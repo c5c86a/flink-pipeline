@@ -1,6 +1,7 @@
 package mygroupid;
 
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -21,10 +22,10 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
     // create a testing sink
     private static class CollectSink implements SinkFunction<Tuple2<String, Integer>> {
         // must be static
-        public static final List<Tuple2<String, Integer>> values = new ArrayList<>();
+        static final List<Tuple2<String, Integer>> values = new ArrayList<>();
 
         @Override
-        public synchronized void invoke(Tuple2<String, Integer> value) throws Exception {
+        public synchronized void invoke(Tuple2<String, Integer> value, SinkFunction.Context context) {
             values.add(value);
         }
     }
@@ -42,15 +43,17 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         // create a stream of custom elements and apply transformations
         env.fromElements("2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34")
                 .flatMap(new DeliveryDelayOperator())
+                .returns(new TypeHint<Tuple2<String, Integer>>(){})
                 .addSink(new CollectSink())
         ;
-
         // execute
         env.execute();
 
         // verify your results
-        Tuple2<String, Integer> expected = new Tuple2<>("2018-08-06 19:16:32 Europe/Zurich", 86402000);
-        assertEquals(CollectSink.values, Lists.newArrayList(expected));
+        Tuple2<String, Integer> expected_element = new Tuple2<>("2018-08-06 19:16:32 Europe/Zurich", 86402000);
+        List<Tuple2<String, Integer>> expected = new ArrayList<>();
+        expected.add(expected_element);
+        assertEquals(CollectSink.values, expected);
     }
     @Test
     public void test_benchmark() throws Exception {

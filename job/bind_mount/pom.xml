@@ -223,6 +223,15 @@ under the License.
 		</pluginManagement>
 	</build>
 
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
+			</plugin>
+		</plugins>
+	</reporting>
 	<!-- This profile helps to make things run out of the box in IntelliJ -->
 	<!-- Its adds Flink's core classes to the runtime class path. -->
 	<!-- Otherwise they are missing in IntelliJ, because the dependency is 'provided' -->

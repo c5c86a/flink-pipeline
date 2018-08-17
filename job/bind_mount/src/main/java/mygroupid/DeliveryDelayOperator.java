@@ -11,11 +11,16 @@ import java.time.format.DateTimeFormatter;
 
 
 /**
- * Collects datetime and msec as Tuple2<String, Integer>
+ * Collects datetime and msec. To use it in a job:
+ * <pre>{@code
+ * DataStreamSource<String> x = ...
+ * x.flatMap(new DeliveryDelayOperator())
+ * .returns(new TypeHint<Tuple2<String, Integer>>(){})
+ * }</pre>
  */
 public class DeliveryDelayOperator implements FlatMapFunction<String, Tuple2<String, Integer>> {
     @Override
-    public void flatMap(String sentence, Collector<Tuple2<String, Integer>> out) throws Exception {
+    public void flatMap(String sentence, Collector<Tuple2<String, Integer>> out) {
         String[] timestamps = sentence.split(",");
         DateTimeFormatter column_0_format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss VV");
         DateTimeFormatter column_1_format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -23,6 +28,6 @@ public class DeliveryDelayOperator implements FlatMapFunction<String, Tuple2<Str
         long end   = LocalDateTime.parse(timestamps[1], column_1_format).atZone(ZoneId.of("Europe/Zurich")).toInstant().toEpochMilli();
         int msec = (int) (end - start);
 
-        out.collect(new Tuple2<String, Integer>(timestamps[0], msec));
+        out.collect(new Tuple2<>(timestamps[0], msec));
     }
 }
