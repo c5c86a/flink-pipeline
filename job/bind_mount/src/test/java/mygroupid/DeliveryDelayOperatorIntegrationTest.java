@@ -53,7 +53,7 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         Tuple2<String, Integer> expected_element = new Tuple2<>("2018-08-06 19:16:32 Europe/Zurich", 86402000);
         List<Tuple2<String, Integer>> expected = new ArrayList<>();
         expected.add(expected_element);
-        assertThat(CollectSink.values).isEqualTo(expected);
+        assertThat(CollectSink.values).isEqualTo(expected); // TODO: shouldn't this be false?
     }
     @Test
     public void test_benchmark() throws Exception {
@@ -67,8 +67,10 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         }
         text = env.fromElements(elements);
 
-        DataStream<Tuple2<String, Integer>> dataStream = text
+        DataStream<Tuple2<Tuple2<String, Integer>, Boolean>> dataStream = text
                 .flatMap(new DeliveryDelayOperator())
+                .returns(new TypeHint<Tuple2<String, Integer>>(){})
+                .flatMap(new ThresholdOperator())
                 ;
         dataStream.writeAsCsv("bind_mount/output.csv", FileSystem.WriteMode.OVERWRITE);
         JobExecutionResult compare_timestamps = env.execute("Compare timestamps");
