@@ -9,10 +9,10 @@ import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import java.util.List;
 import java.util.ArrayList;
-import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
+
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         Tuple2<String, Integer> expected_element = new Tuple2<>("2018-08-06 19:16:32 Europe/Zurich", 86402000);
         List<Tuple2<String, Integer>> expected = new ArrayList<>();
         expected.add(expected_element);
-        assertEquals(CollectSink.values, expected);
+        assertThat(CollectSink.values).isEqualTo(expected);
     }
     @Test
     public void test_benchmark() throws Exception {
@@ -77,6 +77,6 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         logger.info("Job with JobID " + compare_timestamps.getJobID() + " has finished.");
         logger.info("Job Runtime: " + compare_timestamps.getNetRuntime() + " ms");
 
-        assertTrue(compare_timestamps.getNetRuntime() < 6000);
+        assertThat(compare_timestamps.getNetRuntime()).isLessThan(10000);
     }
 }
