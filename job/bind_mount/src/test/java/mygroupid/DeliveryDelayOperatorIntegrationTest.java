@@ -20,12 +20,21 @@ import org.slf4j.LoggerFactory;
 
 public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
     // create a testing sink
-    private static class CollectSink implements SinkFunction<Tuple2<String, Integer>> {
+    private static class DeliveryDelaysSink implements SinkFunction<Tuple2<String, Integer>> {
         // must be static
         static final List<Tuple2<String, Integer>> values = new ArrayList<>();
 
         @Override
         public synchronized void invoke(Tuple2<String, Integer> value, SinkFunction.Context context) {
+            values.add(value);
+        }
+    }
+    private static class ThresholdSink implements SinkFunction<Tuple2<Tuple2<String, Integer>, Boolean>> {
+        // must be static
+        static final List<Tuple2<Tuple2<String, Integer>, Boolean>> values = new ArrayList<>();
+
+        @Override
+        public synchronized void invoke(Tuple2<Tuple2<String, Integer>, Boolean> value, SinkFunction.Context context) {
             values.add(value);
         }
     }
@@ -38,22 +47,43 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         env.setParallelism(1);
 
         // values are collected in a static variable
-        CollectSink.values.clear();
+        DeliveryDelaysSink.values.clear();
+        ThresholdSink.values.clear();
 
         // create a stream of custom elements and apply transformations
         env.fromElements("2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34")
                 .flatMap(new DeliveryDelayOperator())
                 .returns(new TypeHint<Tuple2<String, Integer>>(){})
-                .addSink(new CollectSink())
+                .addSink(new DeliveryDelaysSink())
         ;
         // execute
         env.execute();
 
         // verify your results
-        Tuple2<String, Integer> expected_element = new Tuple2<>("2018-08-06 19:16:32 Europe/Zurich", 86402000);
-        List<Tuple2<String, Integer>> expected = new ArrayList<>();
-        expected.add(expected_element);
-        assertThat(CollectSink.values).isEqualTo(expected); // TODO: shouldn't this be false?
+        assertThat(DeliveryDelaysSink.values.get(0).f1).isEqualTo(86402000);
+    }
+    @Test
+    public void test_threshold() throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        // configure your test environment
+        env.setParallelism(1);
+
+        // values are collected in a static variable
+        ThresholdSink.values.clear();
+
+        // create a stream of custom elements and apply transformations
+        env.fromElements("2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34")
+                .flatMap(new DeliveryDelayOperator())
+                .returns(new TypeHint<Tuple2<String, Integer>>(){})
+                .flatMap(new ThresholdOperator())
+                .addSink(new ThresholdSink())
+        ;
+        // execute
+        env.execute();
+
+        // verify your results
+        assertThat(ThresholdSink.values.get(0).f1).isTrue();
     }
     @Test
     public void test_benchmark() throws Exception {
@@ -72,7 +102,7 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
                 .returns(new TypeHint<Tuple2<String, Integer>>(){})
                 .flatMap(new ThresholdOperator())
                 ;
-        dataStream.writeAsCsv("bind_mount/output.csv", FileSystem.WriteMode.OVERWRITE);
+        dataStream.writeAsCsv("output.csv", FileSystem.WriteMode.OVERWRITE);
         JobExecutionResult compare_timestamps = env.execute("Compare timestamps");
 
         Logger logger = LoggerFactory.getLogger(StreamingJob.class);
