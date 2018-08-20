@@ -13,7 +13,7 @@ public class StreamingJob {
         text = env.socketTextStream("kafka-producer", 9000, '\n');
 
         //  TODO: .timeWindow(Time.seconds(5))
-        DataStream<Tuple2<String, Integer>> dataStream = text
+        DataStream<CommonPOJO> dataStream = text
                 .flatMap(new DeliveryDelayOperator());
         env.execute("Compare timestamps");
     }
