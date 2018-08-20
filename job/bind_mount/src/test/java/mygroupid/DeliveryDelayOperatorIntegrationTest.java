@@ -18,7 +18,17 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
+import io.flinkspector.core.quantify.MatchTuples;
+import io.flinkspector.core.quantify.OutputMatcher;
+import io.flinkspector.datastream.DataStreamTestBase;
+import io.flinkspector.datastream.input.time.InWindow;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.windowing.time.Time;
+
+import static org.hamcrest.Matchers.*;
+
+public class DeliveryDelayOperatorIntegrationTest extends DataStreamTestBase {
     // create a testing sink
     private static class DeliveryDelaysSink implements SinkFunction<Tuple2<String, Integer>> {
         // must be static
@@ -39,6 +49,14 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         }
     }
 
+    /**
+     * ThresholdWindowOperator: x < (sum/total)
+     * https://ci.apache.org/projects/flink/flink-docs-release-1.6/quickstart/setup_quickstart.html#read-the-code
+     * https://ci.apache.org/projects/flink/flink-docs-release-1.6/dev/stream/operators/
+     * https://ci.apache.org/projects/flink/flink-docs-release-1.6/api/java/org/apache/flink/api/common/functions/AggregateFunction.html
+     * https://ci.apache.org/projects/flink/flink-docs-stable/dev/table/udfs.html#aggregation-functions
+     * @throws Exception from StreamExecutionEnvironment
+     */
     @Test
     public void test_subtract() throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -110,5 +128,56 @@ public class DeliveryDelayOperatorIntegrationTest extends AbstractTestBase {
         logger.info("Job Runtime: " + compare_timestamps.getNetRuntime() + " ms");
 
         assertThat(compare_timestamps.getNetRuntime()).isLessThan(10000);
+    }
+    public static DataStream<Tuple2<Integer, String>> window(DataStream<Tuple2<Integer, String>> stream) {
+        return stream.timeWindowAll(Time.of(20, seconds)).sum(0);
+    }
+    @Test
+    public void testWindowing() {
+        setParallelism(2);
+
+        /*
+         * Define the input DataStream:
+         * Get a EventTimeSourceBuilder with, .createTimedTestStreamWith(record).
+         * Add data records to it and retrieve a DataStreamSource
+         * by calling .close().
+         *
+         * Note: The before and after keywords define the time span !between! the previous
+         * record and the current record.
+         */
+        DataStream<Tuple2<Integer, String>> testStream =
+                createTimedTestStreamWith(Tuple2.of(1, "fritz"))
+                        .emit(Tuple2.of(2, "fritz"))
+                        //it's possible to generate unsorted input
+                        .emit(Tuple2.of(2, "fritz"))
+                        //emit the tuple multiple times, with the time span between:
+                        .emit(Tuple2.of(1, "peter"), InWindow.to(20, seconds), times(2))
+                        .close();
+
+        /*
+         * Creates an OutputMatcher using MatchTuples.
+         * MatchTuples builds an OutputMatcher working on Tuples.
+         * You assign String identifiers to your Tuple,
+         * and add hamcrest matchers testing the values.
+         */
+        OutputMatcher<Tuple2<Integer, String>> matcher =
+                //name the values in your tuple with keys:
+                new MatchTuples<Tuple2<Integer, String>>("value", "name")
+                        //add an assertion using a value and hamcrest matchers
+                        .assertThat("value", greaterThan(2))
+                        .assertThat("name", either(is("fritz")).or(is("peter")))
+                        //express how many matchers must return true for your test to pass:
+                        .anyOfThem()
+                        //define how many records need to fulfill the
+                        .onEachRecord();
+
+        /*
+         * Use assertStream to map DataStream to an OutputMatcher.
+         * You're also able to combine OutputMatchers with any
+         * OutputMatcher. E.g:
+         * assertStream(swap(stream), and(matcher, outputWithSize(greaterThan(4))
+         * would additionally assert that the number of produced records is exactly 3.
+         */
+        assertStream(window(testStream), matcher);
     }
 }
