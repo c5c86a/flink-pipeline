@@ -1,26 +1,28 @@
-package mygroupid;
+package mygroupid.operators;
+
+import mygroupid.CommonPOJO;
 
 /**
  * Returns last CommonPOJO added with isLessThanMovingAvg calculated.
  * It does not support distributive aggregations as when merging,
  * if x has a later lastElementAdded, it is dropped.
  */
-public class AverageAccumulator {
+public class AverageAccumulatorHelper {
     long count;
     long sum;
     CommonPOJO lastElementAdded;
-    public AverageAccumulator(long count, long sum){
+    public AverageAccumulatorHelper(long count, long sum){
         this.count = count;
         this.sum = sum;
         this.lastElementAdded = null;
     }
-    public AverageAccumulator add(CommonPOJO in) {
+    public AverageAccumulatorHelper add(CommonPOJO in) {
         this.sum += in.deliveryDelay;
         this.count += 1L;
         this.lastElementAdded = in;
         return this;
     }
-    public AverageAccumulator merge(AverageAccumulator x){
+    public AverageAccumulatorHelper merge(AverageAccumulatorHelper x){
         this.count += x.count;
         this.sum += x.sum;
         return this;

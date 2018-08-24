@@ -1,6 +1,8 @@
 package mygroupid;
 
 import io.flinkspector.datastream.DataStreamTestBase;
+import mygroupid.operators.DeliveryDelayFlatmap;
+import mygroupid.operators.ThresholdFlatmap;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.core.fs.FileSystem;
@@ -25,9 +27,9 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
 
         // create a stream of custom elements and apply transformations
         env.fromElements("2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34")
-                .flatMap(new DeliveryDelayOperator())
+                .flatMap(new DeliveryDelayFlatmap())
                 .returns(new TypeHint<CommonPOJO>(){})
-                .flatMap(new ThresholdOperator())
+                .flatMap(new ThresholdFlatmap())
                 .addSink(new CommonSink())
         ;
         // execute
@@ -49,9 +51,9 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
         text = env.fromElements(elements);
 
         DataStream<CommonPOJO> dataStream = text
-                .flatMap(new DeliveryDelayOperator())
+                .flatMap(new DeliveryDelayFlatmap())
                 .returns(new TypeHint<CommonPOJO>(){})
-                .flatMap(new ThresholdOperator())
+                .flatMap(new ThresholdFlatmap())
                 ;
         dataStream.writeAsText("output.txt", FileSystem.WriteMode.OVERWRITE);
         JobExecutionResult compare_timestamps = env.execute("Compare timestamps");

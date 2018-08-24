@@ -1,6 +1,5 @@
 package mygroupid;
 
-import mygroupid.CommonPOJO;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 import java.util.ArrayList;

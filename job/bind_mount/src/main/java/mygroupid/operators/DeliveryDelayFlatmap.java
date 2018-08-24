@@ -1,5 +1,6 @@
-package mygroupid;
+package mygroupid.operators;
 
+import mygroupid.CommonPOJO;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
@@ -14,11 +15,11 @@ import java.time.format.DateTimeFormatter;
  * Collects datetime and msec. To use it in a job:
  * <pre>{@code
  * DataStreamSource<String> x = ...
- * x.flatMap(new DeliveryDelayOperator())
+ * x.flatMap(new DeliveryDelayFlatmap())
  * .returns(new TypeHint<Tuple2<String, Integer>>(){})
  * }</pre>
  */
-public class DeliveryDelayOperator implements FlatMapFunction<String, CommonPOJO> {
+public class DeliveryDelayFlatmap implements FlatMapFunction<String, CommonPOJO> {
     @Override
     public void flatMap(String sentence, Collector<CommonPOJO> out) {
         CommonPOJO pojo = new CommonPOJO();

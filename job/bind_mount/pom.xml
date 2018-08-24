@@ -64,20 +64,24 @@ under the License.
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
 			<version>${flink.version}</version>
-			<type>test-jar</type>
 			<scope>provided</scope>
 		</dependency>
 
 		<!-- Add connector dependencies here. They must be in the default scope (compile). -->
-
 		<!-- Example:
-
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-connector-kafka-0.10_${scala.binary.version}</artifactId>
 			<version>${flink.version}</version>
 		</dependency>
 		-->
+		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-connector-elasticsearch -->
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-connector-elasticsearch_${scala.binary.version}</artifactId>
+			<version>${flink.version}</version>
+			<scope>compile</scope>
+		</dependency>
 
 		<!-- Add logging framework, to produce console output when running in the IDE. -->
 		<!-- These dependencies are excluded from the application JAR by default. -->
@@ -97,8 +101,8 @@ under the License.
     <!-- https://ci.apache.org/projects/flink/flink-docs-release-1.6/dev/stream/testing.html#integration-testing --> 
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-test-utils_2.11</artifactId>
-      <version>1.6.0</version>
+      <artifactId>flink-test-utils_${scala.binary.version}</artifactId>
+      <version>${flink.version}</version>
     </dependency>
 		<!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
 		<dependency>
@@ -116,14 +120,14 @@ under the License.
 		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-runtime -->
 		<dependency>
 			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-runtime_2.11</artifactId>
-			<version>1.6.0</version>
+			<artifactId>flink-runtime_${scala.binary.version}</artifactId>
+			<version>${flink.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.flinkspector</groupId>
-			<artifactId>flinkspector-datastream_2.11</artifactId>
+			<artifactId>flinkspector-datastream_${scala.binary.version}</artifactId>
 			<version>0.8.4</version>
 			<scope>test</scope>
 		</dependency>

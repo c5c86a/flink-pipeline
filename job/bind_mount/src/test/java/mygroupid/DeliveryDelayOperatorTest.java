@@ -1,6 +1,7 @@
 package mygroupid;
 
 import io.flinkspector.datastream.DataStreamTestBase;
+import mygroupid.operators.DeliveryDelayFlatmap;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class DeliveryDelayOperatorTest extends DataStreamTestBase {
 
         // create a stream of custom elements and apply transformations
         env.fromElements("2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34")
-                .flatMap(new DeliveryDelayOperator())
+                .flatMap(new DeliveryDelayFlatmap())
                 .returns(new TypeHint<CommonPOJO>(){})
                 .addSink(new CommonSink())
         ;
