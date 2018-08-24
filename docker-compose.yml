@@ -18,19 +18,28 @@ services:
       - "producer"
 
   elasticsearch:
-   image:          elasticsearch:1.7-alpine
-   command:
-     - /bin/bash
-     - -c
-     - "/usr/share/elasticsearch/bin/plugin --remove head --silent && /usr/share/elasticsearch/bin/plugin --install mobz/elasticsearch-head/0.9 --timeout 1m --silent && elasticsearch"
-   cpuset:         0-3
-   volumes:
-     - /opt/flink-pipeline-data/elasticsearch:/usr/share/elasticsearch/data
-   ports:
-     - "9200:9200"
-     - "9300:9300"
-   environment:
-     - discovery.type=single-node
-     - cluster.name=elasticsearch
-   cpuset: 0,3
+    image:          elasticsearch:1.7-alpine
+    command:
+      - /bin/bash
+      - -c
+      - "/usr/share/elasticsearch/bin/plugin --remove head --silent && /usr/share/elasticsearch/bin/plugin --install mobz/elasticsearch-head/0.9 --timeout 1m --silent && elasticsearch"
+    cpuset:         0-3
+    volumes:
+      - /opt/flink-pipeline-data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - cluster.name=elasticsearch
+    cpuset: 0,3
+  
+  redis:
+    build:
+      context:      redis
+    volumes:
+      - /opt/flink-pipeline-data/redis:/data
+    ports:
+      - '6379:6379'
+
  
