@@ -8,7 +8,7 @@ else
   bash "$FLINK_HOME"/bin/start-cluster.sh 
   #bash "$FLINK_HOME"/bin/pyflink-stream.sh "$FLINK_HOME"/bind_mount/example.py
   cd bind_mount
-  mvn -Dmaven.repo.local=/opt/flink/bind_mount/m2 package
+  mvn -Dmaven.repo.local=/opt/flink/bind_mount/m2 javadoc:javadoc javadoc:test-javadoc package
   cd -
   bash "$FLINK_HOME"/bin/flink run -c mygroupid.StreamingJob bind_mount/target/myartifactid-1.0-SNAPSHOT.jar --port 9000
   sleep 10

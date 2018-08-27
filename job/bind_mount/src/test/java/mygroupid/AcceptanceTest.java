@@ -1,6 +1,10 @@
 package mygroupid;
 
 import io.flinkspector.datastream.DataStreamTestBase;
+import mygroupid.categories.Environment;
+import mygroupid.categories.Functionality;
+import mygroupid.categories.Negative;
+import mygroupid.categories.Positive;
 import mygroupid.operators.CommonPOJOMap;
 import mygroupid.operators.ThresholdFlatmap;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -9,12 +13,13 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ThresholdOperatorTest extends DataStreamTestBase {
+public class AcceptanceTest extends DataStreamTestBase {
     private void runJob2SetCommonSink(String data) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -29,6 +34,7 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
         env.execute("Compare timestamps");
     }
     @Test
+    @Category({Functionality.class, Positive.class})
     public void test_positive_delay_within_short_threshold() throws Exception {
         runJob2SetCommonSink("1, 5");
         // verify your results
@@ -38,6 +44,7 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
                 .isTrue();
     }
     @Test
+    @Category({Functionality.class, Positive.class})
     public void test_positive_delay_within_only_the_long_threshold() throws Exception {
         runJob2SetCommonSink("2, 15");
         // verify your results
@@ -47,6 +54,7 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
                 .isTrue();
     }
     @Test
+    @Category({Functionality.class, Negative.class})
     public void test_negative_delay_more_than_short_threshold() throws Exception {
         runJob2SetCommonSink("1, 15");
         // verify your results
@@ -56,6 +64,7 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
                 .isFalse();
     }
     @Test
+    @Category({Functionality.class, Negative.class})
     public void test_negative_delay__more_than_long_threshold() throws Exception {
         runJob2SetCommonSink("2, 105");
         // verify your results
@@ -65,6 +74,7 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
                 .isFalse();
     }
     @Test
+    @Category({Environment.class, Positive.class})
     public void test_benchmark() throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> text;
