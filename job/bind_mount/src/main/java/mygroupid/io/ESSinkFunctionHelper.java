@@ -13,7 +13,7 @@ import java.util.Map;
 public class ESSinkFunctionHelper implements ElasticsearchSinkFunction<CommonPOJO> {
     public IndexRequest createIndexRequest(CommonPOJO element) {
         Map<String, String> json = new HashMap<>();
-        json.put("data", element.input);
+        json.put("data", element.cachedSchemaID);
 
         return Requests.indexRequest()
                 .index("document")

@@ -1,13 +1,11 @@
 package mygroupid;
 
-import mygroupid.io.ESSink;
 import mygroupid.io.RedisDBSink;
-import mygroupid.operators.DeliveryDelayFlatmap;
+import mygroupid.operators.CommonPOJOMap;
 import mygroupid.operators.ThresholdFlatmap;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.redis.RedisSink;
 
 import java.util.Random;
 
@@ -29,10 +27,10 @@ public class StreamingJob {
         }
         env
                 .fromElements(elements)
-                .flatMap(new DeliveryDelayFlatmap())
+                .map(new CommonPOJOMap())
                 .returns(new TypeHint<CommonPOJO>(){})
                 .flatMap(new ThresholdFlatmap())
-                .map(t -> new Tuple2<String, String>(t.input, t.isLessThanThreshold?"yes":"no"))
+                .map(t -> new Tuple2<String, String>(t.deliveryDelay.toString(), t.isLessThanThreshold?"yes":"no"))
                 .addSink(new RedisDBSink())
                 ;
         env.execute("Send high delays to Elasticsearch");

@@ -1,7 +1,7 @@
 package mygroupid;
 
 import io.flinkspector.datastream.DataStreamTestBase;
-import mygroupid.operators.DeliveryDelayFlatmap;
+import mygroupid.operators.CommonPOJOMap;
 import mygroupid.operators.ThresholdFlatmap;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -15,28 +15,54 @@ import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThresholdOperatorTest extends DataStreamTestBase {
-    @Test
-    public void test_threshold() throws Exception {
+    private void runJob2SetCommonSink(String data) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        // configure your test environment
         env.setParallelism(1);
-
-        // values are collected in a static variable
         CommonSink.values.clear();
 
-        // create a stream of custom elements and apply transformations
-        env.fromElements("2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34")
-                .flatMap(new DeliveryDelayFlatmap())
+        env.fromElements(data)
+                .map(new CommonPOJOMap())
                 .returns(new TypeHint<CommonPOJO>(){})
                 .flatMap(new ThresholdFlatmap())
                 .addSink(new CommonSink())
         ;
-        // execute
-        env.execute();
-
+        env.execute("Compare timestamps");
+    }
+    @Test
+    public void test_positive_delay_within_short_threshold() throws Exception {
+        runJob2SetCommonSink("1, 5");
         // verify your results
-        assertThat(CommonSink.values.get(0).isLessThanThreshold).isTrue();
+        assertThat(CommonSink.values.size()).isEqualTo(1);
+        assertThat(CommonSink.values.get(0).isLessThanThreshold)
+                .as(CommonSink.values.get(0).toString())
+                .isTrue();
+    }
+    @Test
+    public void test_positive_delay_within_only_the_long_threshold() throws Exception {
+        runJob2SetCommonSink("2, 15");
+        // verify your results
+        assertThat(CommonSink.values.size()).isEqualTo(1);
+        assertThat(CommonSink.values.get(0).isLessThanThreshold)
+                .as(CommonSink.values.get(0).toString())
+                .isTrue();
+    }
+    @Test
+    public void test_negative_delay_more_than_short_threshold() throws Exception {
+        runJob2SetCommonSink("1, 15");
+        // verify your results
+        assertThat(CommonSink.values.size()).isEqualTo(1);
+        assertThat(CommonSink.values.get(0).isLessThanThreshold)
+                .as(CommonSink.values.get(0).toString())
+                .isFalse();
+    }
+    @Test
+    public void test_negative_delay__more_than_long_threshold() throws Exception {
+        runJob2SetCommonSink("2, 105");
+        // verify your results
+        assertThat(CommonSink.values.size()).isEqualTo(1);
+        assertThat(CommonSink.values.get(0).isLessThanThreshold)
+                .as(CommonSink.values.get(0).toString())
+                .isFalse();
     }
     @Test
     public void test_benchmark() throws Exception {
@@ -44,14 +70,13 @@ public class ThresholdOperatorTest extends DataStreamTestBase {
         DataStream<String> text;
 
         String[] elements = new String[100000];
-        // TODO: text = env.readTextFile();
         for(int i=0; i < 100000; i++){
-            elements[i] = "2018-08-06 19:16:32 Europe/Zurich,2018-08-07 19:16:34";
+            elements[i] = "1, " + i;
         }
         text = env.fromElements(elements);
 
         DataStream<CommonPOJO> dataStream = text
-                .flatMap(new DeliveryDelayFlatmap())
+                .map(new CommonPOJOMap())
                 .returns(new TypeHint<CommonPOJO>(){})
                 .flatMap(new ThresholdFlatmap())
                 ;
