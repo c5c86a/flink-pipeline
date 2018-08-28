@@ -43,6 +43,7 @@ public class CommonPOJO {
         else
             this.schema = new HashMap<String, String>();
         this.deliveryDelay = deliveryDelay;
+        this.cachedSchemaID = cachedSchemaID;
     }
     @Override
     public String toString() {

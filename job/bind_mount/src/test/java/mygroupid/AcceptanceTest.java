@@ -1,14 +1,14 @@
 package mygroupid;
 
 import io.flinkspector.datastream.DataStreamTestBase;
-import mygroupid.categories.Environment;
-import mygroupid.categories.Functionality;
-import mygroupid.categories.Negative;
-import mygroupid.categories.Positive;
+import mygroupid.categories.*;
 import mygroupid.operators.CommonPOJOMap;
 import mygroupid.operators.ThresholdFlatmap;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.java.DataSet;
+import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -17,7 +17,14 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.contentOf;
 
 public class AcceptanceTest extends DataStreamTestBase {
     private void runJob2SetCommonSink(String data) throws Exception {
@@ -98,5 +105,46 @@ public class AcceptanceTest extends DataStreamTestBase {
         logger.info("Job Runtime: " + compare_timestamps.getNetRuntime() + " ms");
 
         assertThat(compare_timestamps.getNetRuntime()).isLessThan(10000);
+    }
+    @Test
+    @Category({Data.class, Positive.class})
+    public void test_input_data() throws Exception {
+        final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        env.readCsvFile("/home/nmaris/my/repo/tmp/flink-pipeline/job/bind_mount/src/main/resources/from-elasticsearch.csv")
+                .types(String.class, Integer.class)
+                .map(t -> "1, " + t.f1)
+                .map(new CommonPOJOMap())
+                .returns(new TypeHint<CommonPOJO>(){})
+                .flatMap(new ThresholdFlatmap())
+                .writeAsText(
+                        "/home/nmaris/my/repo/tmp/flink-pipeline/job/bind_mount/dataset-output-folder",
+                        FileSystem.WriteMode.OVERWRITE)
+        ;
+        String myDirectoryPath = "/home/nmaris/my/repo/tmp/flink-pipeline/job/bind_mount/dataset-output-folder/";
+        env.execute("Compare timestamps");
+        Thread.sleep(4000);
+
+        File dir = new File(myDirectoryPath);
+        File[] directoryListing = dir.listFiles();
+        assertThat(directoryListing)
+                .as("the job has created an output directory")
+                .isNotNull();
+        dir.deleteOnExit();
+
+        List<String> output = new ArrayList<>();
+        for (File child : directoryListing) {
+            try (Scanner scanner = new Scanner(child)) {
+                while (scanner.hasNext()) {
+                    output.add(scanner.nextLine());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        assertThat(output)
+                .contains("(1,6,true,false)")
+                .contains("(1,86404,false,false)")
+                .contains("(1,999999,false,false)")
+        ;
     }
 }
