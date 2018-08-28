@@ -110,17 +110,18 @@ public class AcceptanceTest extends DataStreamTestBase {
     @Category({Data.class, Positive.class})
     public void test_input_data() throws Exception {
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        env.readCsvFile("/home/nmaris/my/repo/tmp/flink-pipeline/job/bind_mount/src/main/resources/from-elasticsearch.csv")
+        String cwd = System.getProperty("user.dir");
+        env.readCsvFile(cwd + "/src/main/resources/from-elasticsearch.csv")
                 .types(String.class, Integer.class)
                 .map(t -> "1, " + t.f1)
                 .map(new CommonPOJOMap())
                 .returns(new TypeHint<CommonPOJO>(){})
                 .flatMap(new ThresholdFlatmap())
                 .writeAsText(
-                        "/home/nmaris/my/repo/tmp/flink-pipeline/job/bind_mount/dataset-output-folder",
+                        cwd + "/dataset-output-folder",
                         FileSystem.WriteMode.OVERWRITE)
         ;
-        String myDirectoryPath = "/home/nmaris/my/repo/tmp/flink-pipeline/job/bind_mount/dataset-output-folder/";
+        String myDirectoryPath = cwd + "/dataset-output-folder/";
         env.execute("Compare timestamps");
         Thread.sleep(4000);
 
